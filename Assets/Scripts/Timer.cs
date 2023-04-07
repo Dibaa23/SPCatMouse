@@ -24,7 +24,7 @@ public class Timer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        volume.weight = 0f;
+        volume.weight = 1f;
         Mist.SetActive(false);
         time = GetComponent<TMP_Text>();
         tempTime = (timeLeft * 0.75f);
