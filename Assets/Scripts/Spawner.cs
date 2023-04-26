@@ -1,47 +1,64 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class Spawner : MonoBehaviour
+public class Spawner : MonoBehaviourPunCallbacks
 {
+    public GameObject currPlayer;
     public GameObject botPrefab;
     public GameObject cheesePrefab;
-    public List<GameObject> catPrefabs;
+    public GameObject catPrefab;
     public GameObject coinPrefab;
+    public GameObject[] playerPrefabs;
     public GameObject[] forestPrefabs;
+    public List<GameObject> catPrefabs;
     public float numBots;
+    public float numCats;
     public float forestObstacles;
     public float numCheese;
-    public float maxCheese = 5f;
     public float numCoins;
-    public float maxCoins = 10f;
-    public float upperBoundX = 50f;
-    public float lowerBoundX = -50f;
-    public float upperBoundY = 33f;
-    public float lowerBoundY = -33f;
+    PhotonView view;
 
     // Start is called before the first frame update
     void Start()
     {
-        numCheese = 0f;
-        numCoins = 0f;
-        spawnBots();
-        spawnForestObstacles();
+        view = GetComponent<PhotonView>();
+
+        currPlayer = playerPrefabs[(int)PhotonNetwork.LocalPlayer.CustomProperties["playerAvatar"]];
+        currPlayer.GetComponentInChildren<Camera>().enabled = true;
+        PhotonNetwork.Instantiate(currPlayer.name, new Vector2(Random.Range(-50f, 50f), Random.Range(-33f, 33f)), Quaternion.identity);
+
+        if (photonView.IsMine) {
+            spawnCats();
+            spawnBots();
+            spawnForestObstacles();
+            InvokeRepeating("spawnCheese", 1f, 10f);
+            InvokeRepeating("spawnCoins", 1f, 20f);
+        }
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        spawnCheese();
-        spawnCoins();
+        
+    }
+
+    void spawnCats() {
+
+        for (int i = 0; i < numCats; i++)
+        {
+            GameObject catClone = PhotonNetwork.Instantiate(catPrefab.name, new Vector2(Random.Range(-45f, 45f), Random.Range(-30f, 30f)), Quaternion.identity);
+            catPrefabs.Add(catClone);
+        }
     }
 
 
     void spawnBots() {
         for (int i = 0; i < numBots; i++)
         {
-            GameObject botClone = Instantiate(botPrefab, new Vector2(Random.Range(lowerBoundX, upperBoundX), Random.Range(lowerBoundY, upperBoundY)),
-                Quaternion.identity);
+            GameObject botClone = PhotonNetwork.Instantiate(botPrefab.name, new Vector2(Random.Range(-50f, 50f), Random.Range(-33f, 33f)), Quaternion.identity);
             foreach (GameObject catPrefab in catPrefabs)
             {
                 catPrefab.GetComponent<CatBot>().mice.Add(botClone);
@@ -50,19 +67,19 @@ public class Spawner : MonoBehaviour
         }
     }
 
-    void spawnCheese() {
-        if ((numCheese < maxCheese) && (numCheese >= 0)) {
-            Instantiate(cheesePrefab, new Vector2(Random.Range(lowerBoundX, upperBoundX), Random.Range(lowerBoundY, upperBoundY)), Quaternion.identity);
-            numCheese++;
+    public void spawnCheese()
+    {
+        for (int i = 0; i < numCheese; i++)
+        {
+            PhotonNetwork.Instantiate(cheesePrefab.name, new Vector2(Random.Range(-50f, 50f), Random.Range(-33f, 33f)), Quaternion.identity);
         }
     }
 
-    void spawnCoins()
+    public void spawnCoins()
     {
-        if ((numCoins < maxCoins) && (numCoins >= 0))
+        for (int i = 0; i < numCoins; i++)
         {
-            Instantiate(coinPrefab, new Vector2(Random.Range(lowerBoundX, upperBoundX), Random.Range(lowerBoundY, upperBoundY)), Quaternion.identity);
-            numCoins++;
+            PhotonNetwork.Instantiate(coinPrefab.name, new Vector2(Random.Range(-50f, 50f), Random.Range(-33f, 33f)), Quaternion.identity);
         }
     }
 
@@ -70,7 +87,7 @@ public class Spawner : MonoBehaviour
     {
         for (int i = 0; i < forestObstacles; i++)
         {
-            Instantiate(forestPrefabs[Random.Range(0, 13)], new Vector2(Random.Range(lowerBoundX, upperBoundX), Random.Range(lowerBoundY, upperBoundY)), Quaternion.identity);
+            PhotonNetwork.Instantiate(forestPrefabs[Random.Range(0, 13)].name, new Vector2(Random.Range(-50f, 50f), Random.Range(-33f, 33f)), Quaternion.identity);
         }
     }
 }

@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Photon.Pun;
 
-
-public class MiceAI : MonoBehaviour
+public class MiceAI : MonoBehaviourPunCallbacks
 {
     public GameObject Manager;
     public GameObject Center;
+    public GameObject cheesePrefab;
+    public GameObject coinPrefab;
     public List<GameObject> Cat;
     public GameObject Cheese;
     public GameObject boom;
     public Rigidbody2D rb2D;
     public ParticleSystem dust;
-	private float borderX;
-	private float borderY;
     private float speed;
     private float size;
     private float HP;
@@ -64,9 +64,10 @@ public class MiceAI : MonoBehaviour
         
         if (HP <= 0f)
         {
-			foreach (GameObject cat in Cat){
-            	cat.GetComponent<CatBot>().mice.Remove(gameObject);
-			}
+            foreach (GameObject cat in Cat)
+            {
+                cat.GetComponent<CatBot>().mice.Remove(gameObject);
+            }
             GameObject clone2 = Instantiate(boom, transform.position, Quaternion.identity);
             clone2.GetComponent<SpriteRenderer>().color = new Color(0f, 0f, 0f);
             Destroy(clone2.gameObject, 0.5f);
@@ -116,7 +117,6 @@ public class MiceAI : MonoBehaviour
 
         if (col.gameObject.tag == "Cheese")
         {
-            Manager.GetComponent<Spawner>().numCheese--;
             speed *= 1.5f;
             StartCoroutine(speedDown(2f));
             GameObject clone2 = Instantiate(boom, col.gameObject.transform.position, Quaternion.identity);
@@ -134,7 +134,6 @@ public class MiceAI : MonoBehaviour
 
         if (col.gameObject.tag == "Coin")
         {
-            Manager.GetComponent<Spawner>().numCoins--;
             Destroy(col.gameObject);
         }
 
@@ -154,23 +153,23 @@ public class MiceAI : MonoBehaviour
 
     public void Flee()
     {
-		bool x = false;
-		foreach (GameObject cat in Cat) {
-        	if (Vector2.Distance(cat.transform.position, transform.position) <= (Random.Range(5f, 10f)) && !runTo)
-        	{
-            	x = true;
-            	transform.Rotate(0f, 0f, Random.Range(0f, 1f));
-            	transform.position = Vector2.MoveTowards(transform.position, cat.transform.position, Time.deltaTime * ((Random.Range(-1f, -0.50f)) * speed));
-        	}
-		}
+        bool x = false;
+        foreach (GameObject cat in Cat)
+        {
+            if (Vector2.Distance(cat.transform.position, transform.position) <= (Random.Range(5f, 10f)) && !runTo)
+            {
+                x = true;
+                transform.Rotate(0f, 0f, Random.Range(0f, 1f));
+                transform.position = Vector2.MoveTowards(transform.position, cat.transform.position, Time.deltaTime * ((Random.Range(-1f, -0.50f)) * speed));
+            }
+        }
 
         runAway = x;
-        
     }
 
     public void Feed() {
         Cheese = GameObject.FindGameObjectWithTag("Cheese");
-        if (Vector2.Distance(Cheese.transform.position, transform.position) <= (Random.Range(5f, 15f)) && !runAway)
+        if (Vector2.Distance(Cheese.transform.position, transform.position) <= (Random.Range(25f, 50f)) && !runAway)
         {
             runTo = true;
             transform.position = Vector2.MoveTowards(transform.position, Cheese.transform.position, Time.deltaTime * ((Random.Range(0.50f, 1f)) * speed));

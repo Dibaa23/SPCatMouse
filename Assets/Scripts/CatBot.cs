@@ -1,14 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using Photon.Pun;
 
 public class CatBot : MonoBehaviour
 {
     public GameObject Manager;
+    public GameObject[] micePlayers;
     public Rigidbody2D rb2D;
     private float speed;
     private Vector3 offset = new Vector3(0, 1.2f, 0);
     public List<GameObject> mice = new List<GameObject>();
+    public TMP_Text countdownDisplay;
     private float rotateRate1;
     private float rotateRate2;
     public GameObject closestMice;
@@ -27,7 +31,7 @@ public class CatBot : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Manager = GameObject.Find("Spawner");
+
         boundrybreach = false;
         stuck = false;
 
@@ -36,17 +40,25 @@ public class CatBot : MonoBehaviour
         rotateRate2 = Random.Range(2.5f, 5.0f);
 
         Center = GameObject.Find("Center");
+        Manager = GameObject.Find("Spawner");
+        countdownDisplay = GameObject.Find("CountDown").GetComponent<TMPro.TextMeshProUGUI>();
 
         InvokeRepeating("FindMice", 1f, 3f);
         InvokeRepeating("RotateSmall", 1f, rotateRate1);
         InvokeRepeating("RotateBig", 1f, rotateRate2);
+
+        Invoke("FindPlayers", 2f);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (gameReady) {
+        micePlayers = GameObject.FindGameObjectsWithTag("Mouse");
+        if (countdownDisplay.text == "GO!")
+        {
+            gameReady = true;
             thrust2();
+
             if (closestMice == null)
             {
                 FindMice();
@@ -62,6 +74,12 @@ public class CatBot : MonoBehaviour
     public void avoidObstacle()
     {
     }
+
+    public void FindPlayers()
+    {
+        mice.AddRange(micePlayers);
+    }
+
     public IEnumerator CMice()
     {
         miceFound = false;
@@ -176,18 +194,16 @@ public class CatBot : MonoBehaviour
 
         if (col.gameObject.tag == "Coin")
         {
-            Manager.GetComponent<Spawner>().numCoins--;
             Destroy(col.gameObject);
         }
 
         if (col.gameObject.tag == "Cheese")
         {
-            Manager.GetComponent<Spawner>().numCheese--;
             GameObject clone2 = Instantiate(boom, col.gameObject.transform.position, Quaternion.identity);
             clone2.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 0f);
             Destroy(clone2.gameObject, 0.5f);
             Destroy(col.gameObject);
-            
+
         }
 
         if (col.gameObject.tag == "Key" || col.gameObject.tag == "Obstacle")

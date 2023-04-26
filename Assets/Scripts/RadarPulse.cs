@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RadarPulse : MonoBehaviour {
+public class RadarPulse : MonoBehaviour 
+{
 
     [SerializeField] private Transform pfRadarPing;
     [SerializeField] private LayerMask radarLayerMask;
 
-    public GameObject Player;
+    public GameObject manager;
     private Transform pulseTransform;
     private float range;
     private float rangeMax;
@@ -17,7 +18,7 @@ public class RadarPulse : MonoBehaviour {
     private Color pulseColor;
     private List<Collider2D> alreadyPingedColliderList;
 
-    private void Awake() {
+    private void Start() {
         pulseTransform = transform.Find("Pulse");
         pulseSpriteRenderer = pulseTransform.GetComponent<SpriteRenderer>();
         pulseColor = pulseSpriteRenderer.color;
@@ -28,13 +29,14 @@ public class RadarPulse : MonoBehaviour {
     }
 
     private void Update() {
+        GameObject player = manager.GetComponent<Spawner>().currPlayer;
         range += rangeSpeed * Time.deltaTime;
         if (range > rangeMax) {
             range = 0f;
             alreadyPingedColliderList.Clear();
         }
         pulseTransform.localScale = new Vector3(range, range);
-        transform.position = Player.transform.position;
+        transform.position = player.transform.position;
         RaycastHit2D[] raycastHit2DArray = Physics2D.CircleCastAll(transform.position, range / 2f, Vector2.zero, 0f, radarLayerMask);
         foreach (RaycastHit2D raycastHit2D in raycastHit2DArray) {
             if (raycastHit2D.collider != null) {

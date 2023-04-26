@@ -6,24 +6,18 @@ using TMPro;
 
 public class countdown : MonoBehaviour
 {
-    public GameObject bot;
-    public GameObject player;
-    public List<GameObject> cats;
     public float countdownTime;
     public TMP_Text countdownDisplay;
-    public bool active;
+
+    void Awake()
+    {
+        
+    }
 
 
     // Start is called before the first frame update
-
     void Start()
     {
-        active = true;
-        foreach (GameObject cat in cats)
-        {
-            cat.GetComponent<CatBot>().gameReady = false;
-        }
-        player.GetComponent<movement>().ready = false;
         StartCoroutine(CountdownStart());
     }
 
@@ -39,21 +33,8 @@ public class countdown : MonoBehaviour
             yield return new WaitForSeconds(1f);
             countdownTime--;
         }
-
-        active = false;
-        player.GetComponent<movement>().ready = true;
-        foreach (GameObject cat in cats)
-        {
-            cat.GetComponent<CatBot>().gameReady = true;
-        }
-
         countdownDisplay.text = "GO!";
         yield return new WaitForSeconds(1f);
         countdownDisplay.gameObject.SetActive(false);
-    }
-
-    public bool isActive()
-    {
-        return active;
     }
 }

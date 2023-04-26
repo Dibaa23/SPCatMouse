@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class ButtonUI : MonoBehaviour
+public class ButtonUI : MonoBehaviourPunCallbacks
 {
-    public GameObject player;
+    public GameObject manager;
     public GameObject options;
-    public GameObject CountDown;
-    public GameObject center;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -26,78 +26,66 @@ public class ButtonUI : MonoBehaviour
         }
     }
 
-    public void playMouseFrog() {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("Frog");
-    }
-    
-    public void playMouseLab() {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("Lab");
-    }
-    
-    public void playMouseDark() {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("Dark");
+    public void playMouse() {
+        SceneManager.LoadScene("Mouse");
     }
 
     public void playCat()
     {
-        Time.timeScale = 1f;
         SceneManager.LoadScene("Cat");
     }
 
     public void Back() {
-        Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
-    }
-    
-    public void Reload() {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void Menu()
     {
-        Time.timeScale = 1f;
         SceneManager.LoadScene("Title");
-    }
-
-    public void Graveyard()
-        {
-            Time.timeScale = 1f;
-            SceneManager.LoadScene("Graveyard");
-        }
-    
-    public void Map()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("Levels");
     }
 
     public void Shop()
     {
-        Time.timeScale = 1f;
         SceneManager.LoadScene("Shop");
     }
 
     public void Pause()
     {
-        if (player.GetComponent<health>().alive)
-        {
-            options.SetActive(true);
-            CountDown.SetActive(false);
-            Time.timeScale = 0f;
-        }
+        options.SetActive(true);
     }
 
-    public void Resume()
+    public void Exit()
     {
+        Application.Quit();
+    }
+
+    public void Resume() {
         options.SetActive(false);
-        if (center.GetComponent<countdown>().isActive())
-        {
-            CountDown.SetActive(true);
+    }
+
+    public void Lobby()
+    {
+        SceneManager.LoadScene("Lobby");
+    }
+
+    public void Loading()
+    {
+        SceneManager.LoadScene("Loading");
+    }
+
+    public void DisconnectPlayer() {
+        StartCoroutine(DisconnectAndLoad());
+    }
+
+    IEnumerator DisconnectAndLoad() {
+        PhotonNetwork.LeaveRoom();
+        while (PhotonNetwork.InRoom) {
+            yield return null;
         }
-        Time.timeScale = 1f;
+        PhotonNetwork.LoadLevel("Title");
+    }
+
+    public void OnMasterClientSwitched() {
+        Debug.Log("Host Switched");
     }
 }

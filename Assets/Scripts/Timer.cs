@@ -13,18 +13,17 @@ public class Timer : MonoBehaviour
     public GameObject Mist;
     public GameObject Lightrays;
     public Light2D spotLight;
-    public Light2D global;
     public float timeLeft;
     public float tempTime;
     public TMP_Text time;
     public TMP_Text end;
     public Volume volume;
-    public bool labMap;
 
     // Start is called before the first frame update
     void Start()
     {
-        volume.weight = 1f;
+        volume.weight = 0f;
+        Lightrays.SetActive(true);
         Mist.SetActive(false);
         time = GetComponent<TMP_Text>();
         tempTime = (timeLeft * 0.75f);
@@ -33,42 +32,17 @@ public class Timer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        cam = GameObject.Find("Player(Clone)").transform.GetChild(0).gameObject.GetComponent<Camera>();
+        player = GameObject.Find("Player(Clone)");
         if (player.GetComponent<health>().alive)
         {
-            if (timeLeft <= 40 && timeLeft >= 39.85f && labMap)
-            {
-
-                global.intensity = 0f;
-                volume.weight = 1f;
-            }
-
-            else if (timeLeft <= 39.85f && timeLeft >= 39f && labMap)
-            {
-                global.intensity = 1f;
-                volume.weight = 0f;
-            }
-            else if (timeLeft <= 39f && timeLeft >= 38.85f && labMap)
-            {
-                global.intensity = 0f;
-                volume.weight = 1f;
-            } 
-            else if (timeLeft <= 38.85f && timeLeft >= 38f && labMap)
-            {
-                global.intensity = 1f;
-                volume.weight = 0f;
-            }
-            else if (timeLeft < 38 && labMap)
-            {
-                global.intensity = 0f;
-                volume.weight = 1f;
-            }
             if (player.GetComponent<movement>().ready) {
                 timeLeft -= (Time.deltaTime);
             }
 
             if (volume.weight <= 1f)
             {
-                volume.weight += (Time.deltaTime / (tempTime - 1f)) * .3f;
+                volume.weight += (Time.deltaTime / (tempTime - 1f));
             }
 
             if (volume.weight >= 0.75f && spotLight.intensity >= 0f)
@@ -76,11 +50,12 @@ public class Timer : MonoBehaviour
                 spotLight.intensity -= (Time.deltaTime / 10f);
             }
 
-            else if (volume.weight >= 0.50f && !labMap)
+            else if (volume.weight >= 0.50f)
             {
                 Mist.SetActive(true);
             }
-            if (volume.weight >= 0.25f)
+
+            else if (volume.weight >= 0.25f)
             {
                 Lightrays.SetActive(false);
             }
@@ -96,15 +71,8 @@ public class Timer : MonoBehaviour
 
             if (cam.orthographicSize >= 10f)
             {
-                cam.orthographicSize -= 0.2f * ((timeLeft / (1.5f * tempTime)) * Time.deltaTime);
+                cam.orthographicSize -= ((timeLeft / (1.5f * tempTime)) * Time.deltaTime);
             }
         }
-        //else {
-          //  gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(-40f, -579f);
-        //    volume.weight = 1f;
-          //  spotLight.intensity -= 0f;
-            //Mist.SetActive(true);
-         //   Lightrays.SetActive(false);
-        //}
     }
 }
